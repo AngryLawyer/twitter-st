@@ -10,7 +10,7 @@ window_t setup_output_window() {
 
     short wind_handle;
 
-    wind_get(0, WF_WORKXYWH, &x_loc, &y_loc, &width, &height);
+    wind_get(0, WF_CURRXYWH, &x_loc, &y_loc, &width, &height);
     wind_handle = wind_create(NAME, x_loc, y_loc, width, height);
     wind_open(wind_handle, x_loc, y_loc, width, height);
 
@@ -19,14 +19,16 @@ window_t setup_output_window() {
 }
 
 void redraw_output_window(window_t window, short handle) {
+	graf_mouse(M_OFF, 0);
     short pixels[4] = {0, 0, 0, 0};
-    wind_get(window, WF_CURRXYWH, &pixels[0], &pixels[1], &pixels[2], &pixels[3]);
+    wind_get(window, WF_WORKXYWH, &pixels[0], &pixels[1], &pixels[2], &pixels[3]);
     //Wipe the background...
     vsf_color(handle, 0);
     vr_recfl(handle, pixels);
 
     //Draw some text!
-    v_gtext(handle, 0, 0, "Now this is a story all about how my life got flipped turned upside down");
+    v_gtext(handle, pixels[0], pixels[1] + 12, "Now this is a story all about how my life got flipped turned upside down");
+	graf_mouse(M_ON, 0);
 }
 
 void destroy_output_window(window_t window) {

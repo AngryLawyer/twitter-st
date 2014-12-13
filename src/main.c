@@ -37,6 +37,8 @@ short main(short int argc, char *argv[]) {
     short workstation;
     app_set_up(&output_window, &workstation);
 
+	graf_mouse(ARROW, 0);
+
     redraw_output_window(output_window, workstation);
     while(button == 0) {
         //vq_mouse(workstation, &button, &nul, &nul);
