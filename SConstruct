@@ -40,7 +40,7 @@ env["LDFLAGS"] = ST_LDFLAGS
 env["ASFLAGS"] = ST_ASM_FLAGS
 
 ########################### main program entry, sources list 
-source_files= ["./src/main.c"]
+source_files= ["./src/main.c", "./src/output_window.c"]
 env.Append(LIBS=['gem'])
 
 program = env.Program(target = OUTPUT_EXE,source = source_files)
