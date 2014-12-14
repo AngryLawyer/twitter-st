@@ -5,13 +5,13 @@
 #include "window.h"
 #include "output_window.h"
 
-short message_handler(short messages[], window_t output_window) {
+short message_handler(short messages[], window_t output_window, OBJECT *object) {
 	short int x, y, w, h;
 	short int out = 0;
 
 	switch(messages[0]) {
 		case WM_REDRAW:
-			redraw_output_window(output_window, (GRECT *)&messages[4]);
+			redraw_output_window(output_window, (GRECT *)&messages[4], object);
 			break;
 		default:
 			break;
@@ -23,7 +23,7 @@ short message_handler(short messages[], window_t output_window) {
 	return out;
 }
 
-void handle_events(window_t output_window) {
+void handle_events(window_t output_window, OBJECT *object) {
     short int mx, my, button, keystate, dummy;
     unsigned short int key;
     short int breturn;
@@ -71,7 +71,7 @@ void handle_events(window_t output_window) {
         }
 
         if (type & MU_MESAG) {
-            out = message_handler(messages, output_window);
+            out = message_handler(messages, output_window, object);
             type &= ~MU_MESAG;
         }
 
@@ -114,11 +114,12 @@ short main(short int argc, char *argv[]) {
 
     OBJECT zebox;
     memset(&zebox, 0, sizeof(OBJECT));
+    zebox.ob_type = G_BOX;
 
     app_set_up(&output_window, &workstation);
 
     graf_mouse(ARROW, 0);
-    handle_events(output_window);
+    handle_events(output_window, &zebox);
 
     clean_up(output_window, workstation);
     return 0;

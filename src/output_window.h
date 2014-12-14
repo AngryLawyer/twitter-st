@@ -5,6 +5,6 @@
 #include "window.h"
 
 window_t setup_output_window();
-void redraw_output_window(window_t window, GRECT *box);
+void redraw_output_window(window_t window, GRECT *box, OBJECT *object);
 void destroy_output_window(window_t window);
 #endif
