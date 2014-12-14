@@ -18,8 +18,8 @@ window_t setup_output_window() {
     return wind_handle;
 }
 
-void redraw_output_window(window_t window, short handle) {
-	graf_mouse(M_OFF, 0);
+void redraw_output_window(window_t window, GRECT *box) {
+	/*graf_mouse(M_OFF, 0);
     short pixels[4] = {0, 0, 0, 0};
     wind_get(window, WF_WORKXYWH, &pixels[0], &pixels[1], &pixels[2], &pixels[3]);
     //Wipe the background...
@@ -28,7 +28,7 @@ void redraw_output_window(window_t window, short handle) {
 
     //Draw some text!
     v_gtext(handle, pixels[0], pixels[1] + 12, "Now this is a story all about how my life got flipped turned upside down");
-	graf_mouse(M_ON, 0);
+	graf_mouse(M_ON, 0);*/
 }
 
 void destroy_output_window(window_t window) {

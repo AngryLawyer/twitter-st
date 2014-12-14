@@ -1,8 +1,84 @@
 #include <stdio.h>
+#include <string.h>
 #include <gem.h>
 
 #include "window.h"
 #include "output_window.h"
+
+short message_handler(short messages[], window_t output_window) {
+	short int x, y, w, h;
+	short int out = 0;
+
+	switch(messages[0]) {
+		case WM_REDRAW:
+			redraw_output_window(output_window, (GRECT *)&messages[4]);
+			break;
+		default:
+			break;
+	}
+
+	/* Close down the window? */
+	//if (out && win_open) close_window(win_handle);
+
+	return out;
+}
+
+void handle_events(window_t output_window) {
+    short int mx, my, button, keystate, dummy;
+    unsigned short int key;
+    short int breturn;
+    short int top_wind;           /* Top window handle */
+    short int type = 0, out = 0;
+    short int time_remaining = 1000;
+    short int base_clip[4];                    
+    short messages[16];
+
+    while (out != 1) {
+        type = 0;
+        while (!(type & MU_KEYBD) && !(type & MU_MESAG) && 
+               !(type & MU_BUTTON) && !(type & MU_TIMER)) {
+
+            type = evnt_multi(
+                (MU_KEYBD | MU_MESAG | MU_BUTTON | MU_TIMER), 0x182, 3, 3,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 
+                messages, time_remaining, &mx, &my,
+                &button, &keystate, &key, &breturn);
+        }
+
+        /*wind_get(win_handle, WF_TOP, &top_wind, &dummy, &dummy, &dummy);
+        if (top_wind != win_handle) {
+            if (game_state == ACTIVE) game_state == FROZEN;
+        }
+
+        // Base clip region is the screen
+        base_clip[0] = base_clip[1] = 0;
+        base_clip[2] = SCw - 1;
+        base_clip[3] = SCh - 1;
+        vs_clip(handle, 1, base_clip);*/
+
+        wind_update(BEG_UPDATE);
+
+        if (type & MU_KEYBD) {
+            switch(key) {
+                case 0x011B:    /* Esc Pause Game */
+                    out = 1;
+                    break;
+                default:
+                    break;
+            }
+            type &= ~MU_KEYBD;
+        }
+
+        if (type & MU_MESAG) {
+            out = message_handler(messages, output_window);
+            type &= ~MU_MESAG;
+        }
+
+        wind_update(END_UPDATE);
+    }
+    return;
+}
 
 void app_set_up(window_t *output_window, short *workstation) {
     short work_in[11];
@@ -35,14 +111,15 @@ short main(short int argc, char *argv[]) {
 
     window_t output_window;
     short workstation;
+
+    OBJECT zebox;
+    memset(&zebox, 0, sizeof(OBJECT));
+
     app_set_up(&output_window, &workstation);
 
-	graf_mouse(ARROW, 0);
+    graf_mouse(ARROW, 0);
+    handle_events(output_window);
 
-    redraw_output_window(output_window, workstation);
-    while(button == 0) {
-        //vq_mouse(workstation, &button, &nul, &nul);
-    }
     clean_up(output_window, workstation);
-	return 0;
+    return 0;
 }
