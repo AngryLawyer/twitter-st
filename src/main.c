@@ -1,17 +1,13 @@
 #include <stdio.h>
-#include <string.h>
 #include <gem.h>
 
 #include "window.h"
 #include "output_window.h"
 
-short message_handler(short messages[], window_t output_window, OBJECT *object) {
-	short int x, y, w, h;
-	short int out = 0;
-
+short message_handler(short messages[], OUTPUT_WINDOW *window) {
 	switch(messages[0]) {
 		case WM_REDRAW:
-			redraw_output_window(output_window, (GRECT *)&messages[4], object);
+			redraw_output_window(window, (GRECT *)&messages[4]);
 			break;
 		default:
 			break;
@@ -20,10 +16,10 @@ short message_handler(short messages[], window_t output_window, OBJECT *object) 
 	/* Close down the window? */
 	//if (out && win_open) close_window(win_handle);
 
-	return out;
+	return 0;
 }
 
-void handle_events(window_t output_window, OBJECT *object) {
+void handle_events(OUTPUT_WINDOW *window) {
     short int mx, my, button, keystate, dummy;
     unsigned short int key;
     short int breturn;
@@ -71,7 +67,7 @@ void handle_events(window_t output_window, OBJECT *object) {
         }
 
         if (type & MU_MESAG) {
-            out = message_handler(messages, output_window, object);
+            out = message_handler(messages, window);
             type &= ~MU_MESAG;
         }
 
@@ -80,7 +76,7 @@ void handle_events(window_t output_window, OBJECT *object) {
     return;
 }
 
-void app_set_up(window_t *output_window, short *workstation) {
+void app_set_up(short *workstation) {
     short work_in[11];
     short work_out[57];
     short dummy;
@@ -95,12 +91,10 @@ void app_set_up(window_t *output_window, short *workstation) {
     work_in[10] = 2;
 
     v_opnvwk(work_in, workstation, work_out);
-
-    *output_window = setup_output_window();
 }
 
-void clean_up(window_t output_window, short workstation) {
-    destroy_output_window(output_window);
+void clean_up(OUTPUT_WINDOW *window, short workstation) {
+    destroy_output_window(window);
     v_clsvwk(workstation);
     appl_exit();
 }
@@ -109,18 +103,15 @@ short main(short int argc, char *argv[]) {
     short button;
     short nul;
 
-    window_t output_window;
+    OUTPUT_WINDOW output_window;
     short workstation;
 
-    OBJECT zebox;
-    memset(&zebox, 0, sizeof(OBJECT));
-    zebox.ob_type = G_BOX;
-
-    app_set_up(&output_window, &workstation);
+    app_set_up(&workstation);
+    setup_output_window(&output_window);
 
     graf_mouse(ARROW, 0);
-    handle_events(output_window, &zebox);
+    handle_events(&output_window);
 
-    clean_up(output_window, workstation);
+    clean_up(&output_window, workstation);
     return 0;
 }

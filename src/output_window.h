@@ -4,7 +4,13 @@
 #include <gem.h>
 #include "window.h"
 
-window_t setup_output_window();
-void redraw_output_window(window_t window, GRECT *box, OBJECT *object);
-void destroy_output_window(window_t window);
+typedef struct _output_window {
+    window_t handle;
+    OBJECT obj_tree[2];
+    TEDINFO tedinfo;
+} OUTPUT_WINDOW;
+
+void setup_output_window(OUTPUT_WINDOW *window);
+void redraw_output_window(OUTPUT_WINDOW *window, GRECT *box);
+void destroy_output_window(OUTPUT_WINDOW *window);
 #endif
