@@ -6,11 +6,11 @@
 
 typedef struct _output_window {
     window_t handle;
-    OBJECT obj_tree[2];
-    TEDINFO tedinfo;
+    OBJECT *obj_tree;
+    short obj_tree_length;
 } OUTPUT_WINDOW;
 
-void setup_output_window(OUTPUT_WINDOW *window);
+OUTPUT_WINDOW* setup_output_window();
 void redraw_output_window(OUTPUT_WINDOW *window, GRECT *box);
 void destroy_output_window(OUTPUT_WINDOW *window);
 #endif

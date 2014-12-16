@@ -5,18 +5,18 @@
 #include "output_window.h"
 
 short message_handler(short messages[], OUTPUT_WINDOW *window) {
-	switch(messages[0]) {
-		case WM_REDRAW:
-			redraw_output_window(window, (GRECT *)&messages[4]);
-			break;
-		default:
-			break;
-	}
+    switch(messages[0]) {
+        case WM_REDRAW:
+            redraw_output_window(window, (GRECT *)&messages[4]);
+            break;
+        default:
+            break;
+    }
 
-	/* Close down the window? */
-	//if (out && win_open) close_window(win_handle);
+    /* Close down the window? */
+    //if (out && win_open) close_window(win_handle);
 
-	return 0;
+    return 0;
 }
 
 void handle_events(OUTPUT_WINDOW *window) {
@@ -103,15 +103,14 @@ short main(short int argc, char *argv[]) {
     short button;
     short nul;
 
-    OUTPUT_WINDOW output_window;
     short workstation;
 
     app_set_up(&workstation);
-    setup_output_window(&output_window);
+    OUTPUT_WINDOW *output_window = setup_output_window();
 
     graf_mouse(ARROW, 0);
-    handle_events(&output_window);
+    handle_events(output_window);
 
-    clean_up(&output_window, workstation);
+    clean_up(output_window, workstation);
     return 0;
 }
