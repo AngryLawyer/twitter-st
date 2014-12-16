@@ -19,8 +19,15 @@ OUTPUT_WINDOW* setup_output_window() {
     wind_open(window->handle, x_loc, y_loc, width, height);
 
     OBJECT *box = &window->obj_tree[0];
+    box->ob_next = -1;
+    box->ob_head = -1;
+    box->ob_tail = -1;
     box->ob_type = G_BOX;
     wind_get(window->handle, WF_WORKXYWH, &box->ob_x, &box->ob_y, &box->ob_width, &box->ob_height);
+
+    //OBJECT *text = &window->obj_tree[1];
+    //objc_add(window->obj_tree, 0, 1);
+    
 
     //window->obj_tree[1].ob_type = G_TEXT;
     //objc_add(window->obj_tree, 0, 1);
