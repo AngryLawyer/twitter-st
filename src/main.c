@@ -106,7 +106,7 @@ short main(short int argc, char *argv[]) {
     short workstation;
 
     app_set_up(&workstation);
-    OUTPUT_WINDOW *output_window = setup_output_window();
+    OUTPUT_WINDOW *output_window = setup_output_window(workstation);
 
     graf_mouse(ARROW, 0);
     handle_events(output_window);

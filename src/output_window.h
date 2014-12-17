@@ -14,7 +14,7 @@ typedef struct _output_window {
 
 short make_object_colors(short border_color, short text_color, short draw_mode, short fill_pattern, short fill_color);
 
-OUTPUT_WINDOW* setup_output_window();
+OUTPUT_WINDOW* setup_output_window(short workstation);
 void redraw_output_window(OUTPUT_WINDOW *window, GRECT *box);
 void destroy_output_window(OUTPUT_WINDOW *window);
 #endif
