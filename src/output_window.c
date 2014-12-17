@@ -4,9 +4,13 @@
 #include "window.h"
 #include "output_window.h"
 
+short make_object_colors(short border_color, short text_color, short draw_mode, short fill_pattern, short fill_color) {
+    return (border_color << 12) | (text_color << 8) | (draw_mode << 7) | (fill_pattern << 4) | fill_color;
+}
+
 OUTPUT_WINDOW* setup_output_window() {
     OUTPUT_WINDOW *window = calloc(1, sizeof(OUTPUT_WINDOW));
-    window->obj_tree_length = 1;
+    window->obj_tree_length = 2;
     window->obj_tree = calloc(window->obj_tree_length, sizeof(OBJECT));
 
     short x_loc;
@@ -16,7 +20,7 @@ OUTPUT_WINDOW* setup_output_window() {
 
     wind_get(0, WF_CURRXYWH, &x_loc, &y_loc, &width, &height);
     window->handle = wind_create(NAME, x_loc, y_loc, width, height);
-    wind_open(window->handle, x_loc, y_loc, width, height);
+    wind_open(window->handle, x_loc + 10, y_loc + 10, width / 2, height / 2);
 
     OBJECT *box = &window->obj_tree[0];
     box->ob_next = -1;
@@ -25,18 +29,22 @@ OUTPUT_WINDOW* setup_output_window() {
     box->ob_type = G_BOX;
     wind_get(window->handle, WF_WORKXYWH, &box->ob_x, &box->ob_y, &box->ob_width, &box->ob_height);
 
-    //OBJECT *text = &window->obj_tree[1];
-    //objc_add(window->obj_tree, 0, 1);
+    OBJECT *text = &window->obj_tree[1];
+    text->ob_next = -1;
+    text->ob_head = -1;
+    text->ob_tail = -1;
     
+    objc_add(window->obj_tree, 0, 1);
+    text->ob_type = G_TEXT;
+    text->ob_width = box->ob_width;
+    text->ob_height = 16;
 
-    //window->obj_tree[1].ob_type = G_TEXT;
-    //objc_add(window->obj_tree, 0, 1);
-    //window->obj_tree[1].ob_spec.tedinfo = &window->tedinfo;
-
-    /*window->tedinfo.te_ptext = "Hello again hello";
-    window->tedinfo.te_font = 3;
-    window->tedinfo.te_color = 2; //FIXME
-    window->tedinfo.te_txtlen = strlen(window->tedinfo.te_ptext);*/
+    TEDINFO *info = calloc(1, sizeof(TEDINFO));
+    info->te_font = 5;
+    info->te_color = make_object_colors(0, 1, 1, 7, 0);
+    info->te_ptext = "Hello again hello";
+    info->te_txtlen = strlen(info->te_ptext);
+    text->ob_spec.tedinfo = info;
 
     wind_set_str(window->handle, WF_NAME, "Twitter");
     return window;
@@ -53,6 +61,8 @@ void redraw_output_window(OUTPUT_WINDOW *window, GRECT *box) {
 }
 
 void destroy_output_window(OUTPUT_WINDOW *window) {
+    objc_delete(window->obj_tree, 1);
+    free(window->obj_tree[1].ob_spec.tedinfo);
     free(window->obj_tree);
     window->obj_tree_length = 0;
     wind_close(window->handle);
