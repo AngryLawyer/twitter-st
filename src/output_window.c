@@ -8,43 +8,80 @@ short make_object_colors(short border_color, short text_color, short draw_mode, 
     return (border_color << 12) | (text_color << 8) | (draw_mode << 7) | (fill_pattern << 4) | fill_color;
 }
 
+bool tokenize_multiline(char *buffer, char *input, short max_width, short text_size, short *last_index) {
+    short input_length = strlen(input);
+    short buffer_position = 0;
+
+    //Bail out if we're at the end of input
+    if (*last_index >= input_length) {
+        return false;
+    }
+
+    while (*last_index < input_length) {
+        if (input[*last_index] == '\n') {
+            buffer[buffer_position] = 0;
+            (*last_index)++;
+            break;
+        } else {
+            buffer[buffer_position] = input[*last_index];
+            buffer_position++;
+            (*last_index)++;
+        }
+    }
+
+    //If we need to wrap, we should do so now
+    short width_char_difference = buffer_position - (max_width / text_size);
+    short inspected_char = 0;
+    short original_last_index = *last_index;
+    if (width_char_difference > 0) {
+        inspected_char = buffer_position - width_char_difference;
+        (*last_index) -= width_char_difference;
+
+        while (inspected_char > 0 && buffer[inspected_char] != ' ') {
+            inspected_char--;
+            (*last_index)--;
+        }
+        if (buffer[inspected_char] == ' ') {
+            buffer[inspected_char] = 0;
+        } else {
+            *last_index = original_last_index;
+        }
+    }
+    return true;
+}
+
 short draw_multiline(PARMBLK *parmblock) {
     GRECT clip_area;
     short sizing = 4;
 
     //Set up clipping
-    short handle = parmblock->pb_parm;
-    vs_clip(handle, 1, &parmblock->pb_xc);
+    OUTPUT_WINDOW *window = (OUTPUT_WINDOW*)parmblock->pb_parm;
+    short handle = window->workstation;
+    char buffer[255];
+    short last_index = 0;
+
+    short draw_region[4] = {
+        parmblock->pb_x, parmblock->pb_y, parmblock->pb_x + parmblock->pb_w, parmblock->pb_y + parmblock->pb_h
+    };
+    short clip_region[4] = {
+        parmblock->pb_xc, parmblock->pb_yc, parmblock->pb_xc + parmblock->pb_wc, parmblock->pb_yc + parmblock->pb_hc
+    };
+
+    vs_clip(handle, 1, clip_region);
     vsf_interior(handle, 1);
-    vsf_color(handle, 6);
-    vr_recfl(handle, &parmblock->pb_x);   // clear entire message area
+    //vsf_color(handle, 6);
+    //vr_recfl(handle, draw_region);   // clear entire message area
     vsl_color(handle, 1);
 
     vst_height(handle, sizing, &sizing, &sizing, &sizing, &sizing);
-    v_gtext(handle, parmblock->pb_x, parmblock->pb_y + 4, "HELLO HELLO");
-    vs_clip(handle, 0, &parmblock->pb_x);
 
-    /*WORD   pxy[4];
-    WORD   ycurr;
-
-    set_clip(TRUE, clip_area);
-    vsf_color(vdi_handle, WHITE);
-    rc_grect_to_array(&work_area, pxy);
-    graf_mouse(M_OFF,(MFORM *)0l);
-    vr_recfl(vdi_handle, pxy);   // clear entire message area
-
-    vsl_color(vdi_handle,BLACK);
-    vswr_mode(vdi_handle,MD_REPLACE);
-    vsl_type (vdi_handle,FIS_SOLID);
-    vswr_mode(vdi_handle, 1);
-    ycurr = work_area.g_y - 1;
-    while (*strptr)         // loop through text strings
-    {
-       ycurr += gl_hbox;
-       v_gtext(vdi_handle, work_area.g_x, ycurr, *strptr++);
+    short position = 6;
+    while (tokenize_multiline(buffer, window->text, parmblock->pb_w, sizing, &last_index)) {
+        v_gtext(handle, parmblock->pb_x, parmblock->pb_y + position, buffer);
+        position += sizing;
     }
-    graf_mouse(M_ON,(MFORM *)0l);
-    set_clip(FALSE, clip_area);*/
+    vs_clip(handle, 0, clip_region);
+
     return 0;
 }
 
@@ -52,6 +89,8 @@ OUTPUT_WINDOW* setup_output_window(short workstation) {
     OUTPUT_WINDOW *window = calloc(1, sizeof(OUTPUT_WINDOW));
     window->obj_tree_length = 2;
     window->obj_tree = calloc(window->obj_tree_length, sizeof(OBJECT));
+    window->workstation = workstation;
+    window->text = "Llama llama llama\nllama duck\nllama llama llama llama llama llama\nHOLLLLLLAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
     short x_loc;
     short y_loc;
@@ -77,20 +116,13 @@ OUTPUT_WINDOW* setup_output_window(short workstation) {
 
     USERBLK *user_block = malloc(sizeof(USERBLK));
     user_block->ub_code = &draw_multiline;
-    user_block->ub_parm = workstation;
+    user_block->ub_parm = (int)window;
 
     objc_add(window->obj_tree, 0, 1);
     text->ob_type = G_USERDEF;
-    text->ob_width = box->ob_width;
-    text->ob_height = box->ob_height;
+    text->ob_width = box->ob_width - 1; //adjust for border
+    text->ob_height = box->ob_height - 1;
     text->ob_spec.userblk = user_block;
-
-    /*TEDINFO *info = calloc(1, sizeof(TEDINFO));
-    info->te_font = 5;
-    info->te_color = make_object_colors(0, 1, 1, 7, 0);
-    info->te_ptext = "Hello again hello";
-    info->te_txtlen = strlen(info->te_ptext);
-    text->ob_spec.tedinfo = info;*/
 
     wind_set_str(window->handle, WF_NAME, "Twitter");
     return window;
