@@ -7,7 +7,7 @@ short make_object_colors(short border_color, short text_color, short draw_mode, 
     return (border_color << 12) | (text_color << 8) | (draw_mode << 7) | (fill_pattern << 4) | fill_color;
 }
 
-bool tokenize_multiline(char *buffer, char *input, short max_width, short text_size, short *last_index) {
+bool tokenize_multiline(char *buffer, const char *input, short max_width, short text_size, short *last_index) {
     short input_length = strlen(input);
     short buffer_position = 0;
 
@@ -18,7 +18,6 @@ bool tokenize_multiline(char *buffer, char *input, short max_width, short text_s
 
     while (*last_index < input_length) {
         if (input[*last_index] == '\n') {
-            buffer[buffer_position] = 0;
             (*last_index)++;
             break;
         } else {
@@ -27,6 +26,9 @@ bool tokenize_multiline(char *buffer, char *input, short max_width, short text_s
             (*last_index)++;
         }
     }
+
+    //Make sure we always end our string!
+    buffer[buffer_position] = 0;
 
     //If we need to wrap, we should do so now
     short width_char_difference = buffer_position - (max_width / text_size);
@@ -42,6 +44,7 @@ bool tokenize_multiline(char *buffer, char *input, short max_width, short text_s
         }
         if (buffer[inspected_char] == ' ') {
             buffer[inspected_char] = 0;
+            (*last_index)++;
         } else {
             *last_index = original_last_index;
         }

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "seatest.h"
 #include "window.h"
 
@@ -9,6 +10,7 @@ void test_no_wrapping() {
     short last_position = 0;
     //Hello World! won't wrap as it's only 36 pixels wide!
     assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+    assert_int_equal(strlen(s), strlen(buffer));
     assert_string_equal(s, buffer);
     assert_false(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
 }
