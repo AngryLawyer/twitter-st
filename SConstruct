@@ -4,6 +4,7 @@ env = Environment(tools=['default'])
 
 #output executable name
 OUTPUT_EXE='TWITTER.PRG'
+TEST_SUITE_OUTPUT_EXE='TEST.TOS'
 
 #we will be building everything in the same directory, where the sources are
 OUTPUT_DIR='./bin'
@@ -18,7 +19,7 @@ env['STRIP'] = 'm68k-atari-mint-strip -s'
 env['STACK'] = 'm68k-atari-mint-stack'
 
 # here we set default paths to headers and libraries
-env["CPPPATH"] = '/usr/m68k-atari-mint/include'
+env["CPPPATH"] = ['/usr/m68k-atari-mint/include', './libs']
 env["LIBPATH"] = '/usr/m68k-atari-mint/lib'
 
 
@@ -40,8 +41,12 @@ env["LDFLAGS"] = ST_LDFLAGS
 env["ASFLAGS"] = ST_ASM_FLAGS
 
 ########################### main program entry, sources list 
-source_files= ["./src/main.c", "./src/output_window.c"]
+source_files = ["./src/main.c", "./src/output_window.c", "./src/window.c"]
 env.Append(LIBS=['gem'])
 
+test_source_files = ["./libs/seatest.c", "./src/test_suite.c", "./src/window.c"]
+
 program = env.Program(target = OUTPUT_EXE,source = source_files)
+test_suite = env.Program(target = TEST_SUITE_OUTPUT_EXE,source = test_source_files)
 env.Alias("install", env.Install(OUTPUT_DIR, program))
+env.Alias("test", env.Install(OUTPUT_DIR, test_suite))

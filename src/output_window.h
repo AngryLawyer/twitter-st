@@ -14,11 +14,7 @@ typedef struct _output_window {
     short workstation;
 } OUTPUT_WINDOW;
 
-short make_object_colors(short border_color, short text_color, short draw_mode, short fill_pattern, short fill_color);
 short draw_multiline(PARMBLK *parmblock);
-
-bool tokenize_multiline(char *buffer, char *input, short max_width, short text_size, short *last_index);
-
 OUTPUT_WINDOW* setup_output_window(short workstation);
 void redraw_output_window(OUTPUT_WINDOW *window, GRECT *box);
 void destroy_output_window(OUTPUT_WINDOW *window);
