@@ -24,6 +24,7 @@ void test_linebreak() {
     assert_string_equal("Hello", buffer);
     assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
     assert_string_equal("world!", buffer);
+    assert_false(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
 }
 
 void test_find_line_break() {
@@ -37,6 +38,7 @@ void test_find_line_break() {
     assert_string_equal("Hello hello", buffer);
     assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
     assert_string_equal("world!", buffer);
+    assert_false(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
 }
 
 void test_fixture_string_wrapping( void ) {
