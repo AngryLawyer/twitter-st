@@ -43,11 +43,37 @@ void test_find_line_break() {
     assert_false(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
 }
 
+//This specific string was truncating characters
+void test_llamas() {
+    char *s = "Llama llama llama\nllama duck\nllama llama llama llama llama llama\nHOLLLLLLAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    char buffer[255];
+    short max_width = 100;
+    short text_size = 4;
+    short last_position = 0;
+    //Wrap on the nearest space to 14 characters
+    assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+    assert_string_equal("Llama llama llama", buffer);
+
+    assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+    assert_string_equal("llama duck", buffer);
+
+    assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+    assert_string_equal("llama llama llama llama", buffer);
+
+    assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+    assert_string_equal("llama llama", buffer);
+
+    assert_true(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+    assert_string_equal("HOLLLLLLAAAAAAAAAAAAAAAAAAAAAAAAAA", buffer);
+    assert_false(tokenize_multiline(buffer, s, max_width, text_size, &last_position));
+}
+
 void test_fixture_string_wrapping( void ) {
     test_fixture_start();
     run_test(test_no_wrapping);
     run_test(test_linebreak);
     run_test(test_find_line_break);
+    run_test(test_llamas);
     test_fixture_end();
 }
 
